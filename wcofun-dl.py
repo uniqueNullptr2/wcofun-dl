@@ -46,7 +46,7 @@ def get_links(driver, link):
 # get video link
 def get_download_link(driver, link):
     driver.get(link)
-    WebDriverWait(driver, 60).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR, "#cizgi-js-0")))
+    WebDriverWait(driver, 60).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR, "iframe")))
     vid = driver.find_element(By.CSS_SELECTOR, "video")
     l = vid.get_attribute("src")
     # HACK

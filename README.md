@@ -12,9 +12,10 @@ developed and tested on Linux. On windows it should work if you install the prop
 
 ## errors
 sometimes it will fail to get videolinks by timeing out waiting for the iframe to load.  
+otherwise the css selector for the iframe could be a problem. the id is not always the same. changing it to just iframe worked for one example but might break for others?  
 just keep retrying a couple times
 also I noticed sometimes the videolink is just "" no idea whats up with that  
 
 ## install
-copying the file to somewhere thats in your PATH and making it executable should do the trick to use it easily
+copying the file to somewhere thats in your PATH and making it executable should do the trick to use it easily  
 also install the requirements (requirements.txt and curl)
