@@ -11,7 +11,7 @@ import re
 from tqdm import tqdm
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+from time import sleep
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -33,8 +33,12 @@ def get_links(driver, link):
         name = tag.get_attribute('title')
         link = tag.get_attribute('href')
         parts = name.split(" Episode ")
-        parts2 = parts[1].split(" ")
-        name = f"{parts2[0].rjust(2,'0')} - {parts[0]}"
+        if len(parts) < 2:
+            parts = name.split(" English")
+            name = parts[0][6:]
+        else:
+            parts2 = parts[1].split(" ")
+            name = f"{parts2[0].rjust(2,'0')} - {parts[0][6:]}"
         arr.append((name, link))
     return arr
 
@@ -42,9 +46,13 @@ def get_links(driver, link):
 # get video link
 def get_download_link(driver, link):
     driver.get(link)
-    WebDriverWait(driver, 30).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR, "#cizgi-js-0")))
+    WebDriverWait(driver, 60).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR, "#cizgi-js-0")))
     vid = driver.find_element(By.CSS_SELECTOR, "video")
     l = vid.get_attribute("src")
+    # HACK
+    if l == "":
+        sleep(0.5)
+        l = vid.get_attribute("src")
     return l
 
 
@@ -117,7 +125,8 @@ if __name__ == "__main__":
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
             driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": userAgent})
             links = get_links(driver, args.link)
-            links = [(name, get_download_link(driver, link)) for name, link in links]
+            print("getting download links")
+            links = [(name, get_download_link(driver, link)) for name, link in tqdm(links)]
             if args.save is not None:
                 save_links(links, args.save)
             else:
@@ -125,7 +134,5 @@ if __name__ == "__main__":
                     download(name, link, args.out)
     elif args.file is not None:
         links = read_from_file(args.file)
-        print(links)
-        exit(0)
         for name, link in tqdm(links):
             download(name, link, args.out)
